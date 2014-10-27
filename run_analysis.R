@@ -55,8 +55,7 @@ Col3[Col3 == 5] <- "STANDING"
 Col3[Col3 == 6] <- "LAYING"
 
 
-NewData<-cbind(Col1,Col2)
-NewData<-cbind(NewData,Col3)
+
 
 #Assign names to column headings
 colnames(Col1)<-features[,2]
