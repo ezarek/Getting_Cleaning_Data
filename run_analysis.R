@@ -105,7 +105,9 @@ names(muSigmaData)<-tolower(names(muSigmaData))
 #Calculate mean of each column in muSigmaDataSet
 tidyData<-aggregate(muSigmaData[,1:66], list(muSigmaData$subject,muSigmaData$activity),
                 mean,na.rm=TRUE)
-
+#Rename columns
+colnames(tidyData)[1]<-subject
+colnames(tidyData)[2]<-activity
 
 #Write object to text file
 write.table(tidyData,file = "tidyMeans.txt",row.names = FALSE)
