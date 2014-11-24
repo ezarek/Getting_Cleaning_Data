@@ -223,7 +223,39 @@ only those values pertaining to mean and standard deviation. Included below are 
 [68] "frequencybodybodygyrojerkmagstd" 
 
 
+Study Design
+=============
+We obtained raw data from the UCI database. This data is processed using the run_analysis.R script. Since this data is
+in raw from we need to process the data by placing all of the disparate pieces together in order to perform our final analysis.I have chosen to remove the calculations for mean and standard deviation from the original raw data set in order to assemble the new tidy data set. The following scripts perform this analysis.
 
+##Extract columns from dataset that have mean() or std()
+mu<-NewData[grep("mean()", names(NewData),fixed = TRUE)]
+sigma<-NewData[grep("std()", names(NewData),fixed = TRUE)]
 
+The new data set includes 33 variables that are related to mean calculations and 33 variables related to standard deviation.I have recombined the subject and activity columns with the new data set so that we have a clean record of the 30 individuals that were part of the original study with the corresponding activities associated with those measurements. I have cleaned up the columns from the original data set in order have a tidy group of columns. The following scripts performed this operation.
 
+#Clean up column names for apprpriate headings
+#names(NewData)<-make.names(names(NewData))
 
+#Replace t and f with time and frequency
+names(muSigmaData)<-gsub("^t","time",names(muSigmaData))
+names(muSigmaData)<-gsub("^f","frequency",names(muSigmaData))
+
+#Remove parentheses () and dashes
+names(muSigmaData)<-gsub("\\()","",names(muSigmaData))
+names(muSigmaData)<-gsub("\\-","",names(muSigmaData))
+
+#lowercase adjustment
+names(muSigmaData)<-tolower(names(muSigmaData))
+
+The final product is an output of the mean of all measurement variables(66 total) which is calculated by both subject and by acttivity.The final output scripts are included below.The results are stored in tidyMeans.txt.
+
+#Calculate mean of each column in muSigmaDataSet
+tidyData<-aggregate(muSigmaData[,1:66], list(muSigmaData$subject,muSigmaData$activity),
+                mean,na.rm=TRUE)
+#Rename columns
+colnames(tidyData)[1]<-subject
+colnames(tidyData)[2]<-activity
+
+#Write object to text file
+write.table(tidyData,file = "tidyMeans.txt",row.names = FALSE)
