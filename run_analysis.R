@@ -1,3 +1,6 @@
+#load libraries
+library("plyr")
+library("dplyr")
 #set working directory
 setwd("C:/Users/ZAREK/Documents/R_Projects/Hopkins_Getting_and_Cleaning_Data")
 
@@ -70,28 +73,39 @@ colnames(Col3)<-activity
 NewData<-cbind(Col1,Col2)
 NewData<-cbind(NewData,Col3)
 
+##Extract columns from dataset that have mean() or std()
+mu<-NewData[grep("mean()", names(NewData),fixed = TRUE)]
+sigma<-NewData[grep("std()", names(NewData),fixed = TRUE)]
+
+#Combine data sets with mean and standard deviation
+muSigmaData<-cbind(mu,sigma)
+
+#Column bind subject and activity columns
+muSigmaData<-cbind(muSigmaData,NewData[,562:563])
+
+
 #Clean up column names for apprpriate headings
-names(NewData)<-make.names(names(NewData))
+#names(NewData)<-make.names(names(NewData))
 
 #Replace t and f with time and frequency
-names(NewData)<-gsub("^t","time",names(NewData))
-names(NewData)<-gsub("^f","frequency",names(NewData))
+names(muSigmaData)<-gsub("^t","time",names(muSigmaData))
+names(muSigmaData)<-gsub("^f","frequency",names(muSigmaData))
+
+#Remove parentheses () and dashes
+names(muSigmaData)<-gsub("\\()","",names(muSigmaData))
+names(muSigmaData)<-gsub("\\-","",names(muSigmaData))
 
 #lowercase adjustment
-names(NewData)<-tolower(names(NewData))
+names(muSigmaData)<-tolower(names(muSigmaData))
+
 #Replace bodybody
-names(NewData)<-gsub("bodybody","body",names(NewData))
+#names(NewData)<-gsub("bodybody","body",names(NewData))
 
-##Extract columns from dataset that have mean() or std()
-mu<-NewData[grep(".mean", names(NewData),fixed = TRUE)]
-sigma<-NewData[grep(".std", names(NewData),fixed = TRUE)]
-#Combine data sets with mean and standard deviation
-
-muSigmaDataSet<-cbind(mu,sigma)
 
 #Calculate mean of each column in muSigmaDataSet
+tidyData<-aggregate(muSigmaData[,1:66], list(muSigmaData$subject,muSigmaData$activity),
+                mean,na.rm=TRUE)
 
-muSigma2<-colwise(mean)(muSigmaDataSet)
 
 #Write object to text file
-write.table(muSigma2,file = "colMeans.txt",row.names = FALSE)
+write.table(tidyData,file = "tidyMeans.txt",row.names = FALSE)
